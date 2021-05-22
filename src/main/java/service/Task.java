@@ -11,30 +11,40 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 public class Task implements Runnable{
     @Getter
-    private final Floor currentFloor;
+    private final int currentFloor;
     @Getter
-    private final Floor destinationFloor;
+    private final int destinationFloor;
     private final Elevator elevator;
-    @Getter
-    private final int direction;
-    @SneakyThrows
+
     @Override
     public void run() {
         closeOpenDoors(); //close doors
-        for (int i = 0; i < getNumberOfFloorsToMove(); i++){
-            TimeUnit.MILLISECONDS.sleep(movementLagInMills());
-            elevator.move();
-        }
+        move();
+        changeElevatorDirectionIfNeed();
         closeOpenDoors(); //open open doors
     }
-    private int movementLagInMills(){
-        return (int) (currentFloor.getFloorHeight() / elevator.getElevatorSpeed() * 1000);
+    @SneakyThrows
+    private void move(){
+        final int countFloorsToMove = getNumberOfFloorsToMove();
+        for (int i = 0; i < countFloorsToMove; i++){
+            TimeUnit.MILLISECONDS.sleep(elevator.getElevatorMoveLag());
+            elevator.move();
+        }
     }
+    private void changeElevatorDirectionIfNeed(){
+        if(currentFloor < destinationFloor){
+            elevator.setDirectionUp();
+        }else {
+            elevator.setDirectionDown();
+        }
+    }
+
     private int getNumberOfFloorsToMove(){
-        return Math.abs(destinationFloor.getFloorNumber() - currentFloor.getFloorNumber());
+        return Math.abs(destinationFloor - currentFloor);
     }
     @SneakyThrows
     private void closeOpenDoors(){
         TimeUnit.MILLISECONDS.sleep(elevator.getDoorsOpenCloseLag());
     }
+
 }

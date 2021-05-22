@@ -1,6 +1,7 @@
 package domain;
 
 import com.google.common.base.Preconditions;
+import lombok.Getter;
 import service.ElevatorController;
 import service.ElevatorControllerImpl;
 
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
+@Getter
 public class House {
     private final List<Floor> floors;
     private final List<Elevator> elevators;
@@ -25,9 +27,11 @@ public class House {
         this.floors = new ArrayList<>();
         this.elevators = new ArrayList<>();
         this.elevatorControllers = new ArrayList<>();
-        IntStream.range(0, numberOfFloors).forEach(i -> floors.add(new Floor(i + 1)));
-        IntStream.range(0, numberOfElevators).forEach(i -> elevators.add(new Elevator(numberOfFloors, elevatorLiftingCapacity, i + 1)));
-        IntStream.range(0, numberOfElevators).forEach(i -> elevatorControllers.add(new ElevatorControllerImpl(elevators.get(i))));
+        IntStream.range(0, numberOfFloors).forEach(i -> floors.add(new Floor(i+1)));
+        IntStream.range(0, numberOfElevators)
+                .forEach(i -> elevators.add(new Elevator(numberOfFloors, elevatorLiftingCapacity, i+1)));
+        IntStream.range(0, numberOfElevators)
+                .forEach(i -> elevatorControllers.add(new ElevatorControllerImpl(elevators.get(i))));
     }
 
     public static House ofFloors(int numberOfFloors) {
@@ -49,7 +53,7 @@ public class House {
     }
 
     public Floor getFloorByNumber(int floorNumber) {
-        Preconditions.checkArgument(floorNumber > 0 && floorNumber <= getFloorsNumber(),
+        Preconditions.checkArgument(floorNumber > 0 && floorNumber < getFloorsNumber(),
                 "Check args! Incorrect floor number");
         return floors.stream().filter(floor -> floor.getFloorNumber() == floorNumber)
                 .findFirst()
@@ -61,7 +65,7 @@ public class House {
     }
 
     public Elevator getElevatorByNumber(int elevatorNumber) {
-        Preconditions.checkArgument(elevatorNumber > 0 && elevatorNumber <= getElevatorsNumber(),
+        Preconditions.checkArgument(elevatorNumber > 0 && elevatorNumber < getElevatorsNumber(),
                 "Check args! Incorrect elevator number");
         return elevators.stream().filter(elevator -> elevator.getId() == elevatorNumber)
                 .findFirst()
@@ -72,9 +76,7 @@ public class House {
         return elevators.size();
     }
 
-    public List<ElevatorController> getElevatorControllers() {
-        return elevatorControllers;
-    }
+
 
     public void printHouseInfo() {
         System.out.println(this);

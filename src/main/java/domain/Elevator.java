@@ -6,11 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Getter
@@ -19,8 +18,8 @@ public class Elevator {
     public static final int DIRECTION_UP = 1;
     public static final int DIRECTION_DOWN = -1;
 
-    private final float elevatorSpeed = 0.8f; //meter per second
-    private final int doorsOpenCloseLag = 5_000; //milliseconds
+    private final int elevatorMoveLag = 4_200; //mills
+    private final int doorsOpenCloseLag = 3_000; //mills
 
     private final int id;
     private int direction;
@@ -29,12 +28,13 @@ public class Elevator {
     private final int liftingCapacity;
 
     private final List<Person> personList = new ArrayList<>();
-    private final boolean[] buttonsFloors;
+    private final Map<Integer, Boolean> buttonsFloors;
 
     public Elevator(int numberOfFloors, int liftingCapacity, int id) {
         this.direction = DIRECTION_UP;
         this.currentFloor = new AtomicInteger(1);
-        this.buttonsFloors = new boolean[numberOfFloors];
+        this.buttonsFloors = new HashMap<>(numberOfFloors);
+        IntStream.range(0, numberOfFloors).forEach(i -> this.buttonsFloors.put(i+1, false)); //номера этажей начиная с 1
         this.liftingCapacity = liftingCapacity;
         this.id = id;
     }
@@ -58,7 +58,7 @@ public class Elevator {
     public void addPerson(Person person) {
         final long elapsedSeconds = Duration.between(LocalTime.now(), person.getSpawnTime()).getSeconds();
         person.setEnterElevatorTime(LocalTime.now());
-        this.buttonsFloors[person.getDestinationFloor() - 1] = true;
+        this.buttonsFloors.put(person.getDestinationFloor(), true);
         log.info("Person " + person + " wait elevator in queue " + elapsedSeconds + " sec.");
     }
 
@@ -69,19 +69,21 @@ public class Elevator {
         log.info("Person " + person + " move in elevator " + elapsedSeconds + " sec.");
     }
 
-    public boolean[] getButtonsFloors() {
+    public Map<Integer, Boolean> getButtonsFloors() {
         return buttonsFloors;
     }
-    public void switchOffButton(int floorNumber){
-        this.buttonsFloors[floorNumber-1] = false;
+
+    public void switchOffButton(int floorNumber) {
+        this.buttonsFloors.put(floorNumber, false);
     }
+
     public int getFreeCapacity() {
         final int totalWeight = personList.stream().mapToInt(Person::getWeight).sum();
         return liftingCapacity - totalWeight;
     }
 
     public String getButtons() {
-        return Arrays.toString(buttonsFloors);
+        return buttonsFloors.toString();
     }
 
     @Override

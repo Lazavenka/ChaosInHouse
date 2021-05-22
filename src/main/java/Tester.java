@@ -1,5 +1,7 @@
 import domain.House;
 import lombok.extern.slf4j.Slf4j;
+import service.ElevatorController;
+import service.ElevatorControllerImpl;
 import service.PeopleGenerator;
 import service.PeopleGeneratorImpl;
 
@@ -16,5 +18,6 @@ public class Tester {
         peopleGenerator.generatePeople(house);
         System.out.println("---------2nd generation----------");
         house.printHouseInfo();
+
     }
 }

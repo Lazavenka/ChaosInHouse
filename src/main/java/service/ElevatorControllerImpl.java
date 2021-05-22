@@ -21,7 +21,20 @@ public class ElevatorControllerImpl implements ElevatorController {
 
     private final Elevator elevator;
     private final BlockingQueue<Task> tasks = new LinkedBlockingQueue<>();
-
+    @SneakyThrows
+    @Override
+    public void addTask(Task task){
+        this.tasks.put(task);
+    }
+    @SneakyThrows
+    @Override
+    public void completeTask(){
+        this.tasks.take().run();
+    }
+    @Override
+    public int getCurrentFloorNumber(){
+        return this.elevator.getCurrentFloor();
+    }
     @SneakyThrows
     @Override
     public void addPersonToElevator(House house) {
@@ -75,7 +88,7 @@ public class ElevatorControllerImpl implements ElevatorController {
         if (elevator.getCurrentFloor() == house.getFloorsNumber()){
             elevator.setDirectionDown();
         }
-        if (elevator.getCurrentFloor() == 1){
+        if (elevator.getCurrentFloor() == 0){
             elevator.setDirectionUp();
         }
     }
