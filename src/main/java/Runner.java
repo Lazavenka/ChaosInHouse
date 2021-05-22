@@ -2,8 +2,6 @@ import domain.Elevator;
 import domain.House;
 import domain.Person;
 import lombok.extern.slf4j.Slf4j;
-import service.ElevatorController;
-import service.ElevatorControllerImpl;
 
 @Slf4j
 public class Runner {

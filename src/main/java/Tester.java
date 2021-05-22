@@ -1,7 +1,5 @@
 import domain.House;
 import lombok.extern.slf4j.Slf4j;
-import service.ElevatorController;
-import service.ElevatorControllerImpl;
 import service.PeopleGenerator;
 import service.PeopleGeneratorImpl;
 

@@ -3,7 +3,6 @@ package domain;
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import service.ElevatorController;
-import service.ElevatorControllerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class House {
         IntStream.range(0, numberOfElevators)
                 .forEach(i -> elevators.add(new Elevator(numberOfFloors, elevatorLiftingCapacity, i+1)));
         IntStream.range(0, numberOfElevators)
-                .forEach(i -> elevatorControllers.add(new ElevatorControllerImpl(elevators.get(i))));
+                .forEach(i -> elevatorControllers.add(new ElevatorController(elevators.get(i))));
     }
 
     public static House ofFloors(int numberOfFloors) {
