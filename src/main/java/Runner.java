@@ -8,12 +8,13 @@ public class Runner {
         log.info("Hello");
         final House house = House.ofFloors(10);
         final int testFloorNumber = 5;
-        Person person = new Person(testFloorNumber, house);
-        log.info("Person "+person.toString());
+        final int maxFloor = house.getFloorsNumber();
+        Person person = new Person(testFloorNumber, maxFloor);
+        log.info("Person "+person);
         log.info("isButtonUp() before distribution - "+house.getFloorByNumber(testFloorNumber).isButtonUp());
         log.info("isButtonDown() before distribution - "+house.getFloorByNumber(testFloorNumber).isButtonDown());
 
-        house.getFloorByNumber(testFloorNumber).distribute(person);
+        house.getFloorByNumber(testFloorNumber).distributeByQueues(person);
 
         log.info("isButtonUp() after distribution - "+house.getFloorByNumber(testFloorNumber).isButtonUp());
         log.info("isButtonDown() after distribution - "+house.getFloorByNumber(testFloorNumber).isButtonDown());
