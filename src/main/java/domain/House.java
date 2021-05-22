@@ -1,6 +1,8 @@
 package domain;
 
 import com.google.common.base.Preconditions;
+import service.ElevatorController;
+import service.ElevatorControllerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.stream.IntStream;
 public class House {
     private final List<Floor> floors;
     private final List<Elevator> elevators;
+    private final List<ElevatorController> elevatorControllers;
 
     private House(int numberOfFloors) {
         this(numberOfFloors, 1);
@@ -21,8 +24,10 @@ public class House {
     private House(int numberOfFloors, int numberOfElevators, int elevatorLiftingCapacity) {
         this.floors = new ArrayList<>();
         this.elevators = new ArrayList<>();
+        this.elevatorControllers = new ArrayList<>();
         IntStream.range(0, numberOfFloors).forEach(i -> floors.add(new Floor(i + 1)));
-        IntStream.range(0, numberOfElevators).forEach(i -> elevators.add(new Elevator(elevatorLiftingCapacity, i + 1)));
+        IntStream.range(0, numberOfElevators).forEach(i -> elevators.add(new Elevator(numberOfFloors, elevatorLiftingCapacity, i + 1)));
+        IntStream.range(0, numberOfElevators).forEach(i -> elevatorControllers.add(new ElevatorControllerImpl(elevators.get(i))));
     }
 
     public static House ofFloors(int numberOfFloors) {
@@ -65,6 +70,10 @@ public class House {
 
     public int getElevatorsNumber() {
         return elevators.size();
+    }
+
+    public List<ElevatorController> getElevatorControllers() {
+        return elevatorControllers;
     }
 
     public void printHouseInfo() {

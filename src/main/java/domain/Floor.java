@@ -62,6 +62,8 @@ public class Floor {
         return "Floor number " + floorNumber +
                 ", floorHeight " + floorHeight +
                 ", buttonUp " + buttonUp +
-                ", buttonDown " + buttonDown;
+                ", buttonDown " + buttonDown +
+                ", peopleUp " + personQueueUp.size() +
+                ", peopleUp " + personQueueDown.size();
     }
 }

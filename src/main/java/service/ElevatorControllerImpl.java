@@ -4,80 +4,80 @@ import domain.Elevator;
 import domain.Floor;
 import domain.House;
 import domain.Person;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
 @Slf4j
+@AllArgsConstructor
 public class ElevatorControllerImpl implements ElevatorController {
 
+    private final Elevator elevator;
+    private final BlockingQueue<Task> tasks = new LinkedBlockingQueue<>();
+
+    @SneakyThrows
     @Override
-    public void addPersonToElevator(Elevator elevator, House house) {
-        final int elevatorDirection = elevator.getDirection();
+    public void addPersonToElevator(House house) {
         final int currentFloorNumber = elevator.getCurrentFloor();
         final Floor floor = house.getFloorByNumber(currentFloorNumber);
-        //заменить на 1 норм метод
-        if(checkDirection(elevatorDirection, floor)
-                && checkFreeCapacity(elevator, floor)){
-            final Optional<Person> optionalPerson = getOptionalPersonFromQueue(elevatorDirection, floor);
-            optionalPerson.ifPresentOrElse(elevator::addPerson, () -> log.debug("Optional person is empty! IMPOSSIBLE!"));
+        while (checkDirectionAndButton(floor) && checkFreeCapacity(floor)) { //rename methods
+            final Person person = getPersonQueue(floor).take();
+            elevator.addPerson(person);
             floor.checkQueues();
         }
     }
-
-    @SneakyThrows
-    private Optional<Person> getOptionalPersonFromQueue(int direction, Floor floor){
-        if (direction == Elevator.DIRECTION_UP){
-            return Optional.of(floor.getPersonQueueUp().take());
-        }
-        if (direction == Elevator.DIRECTION_DOWN){
-            return Optional.of(floor.getPersonQueueDown().take());
-        }
-        return Optional.empty();
+    // returns the queue corresponding to the direction of elevator
+    private BlockingQueue<Person> getPersonQueue(Floor floor) {
+        return elevator.getDirection() == Elevator.DIRECTION_DOWN ? floor.getPersonQueueDown() : floor.getPersonQueueUp();
     }
 
-    private boolean checkDirection(int direction, Floor floor) {
-        return (direction == Elevator.DIRECTION_UP && floor.isButtonUp()) ||
-                (direction == Elevator.DIRECTION_DOWN && floor.isButtonDown());
+    private boolean checkDirectionAndButton(Floor floor) {
+        return (elevator.getDirection() == Elevator.DIRECTION_UP && floor.isButtonUp()) ||
+                (elevator.getDirection() == Elevator.DIRECTION_DOWN && floor.isButtonDown());
     }
 
-    private boolean checkFreeCapacity(Elevator elevator, Floor floor) {
-        final int direction = elevator.getDirection();
-        final Optional<Person> optionalPerson = peekPersonFromQueue(direction, floor);
+    private boolean checkFreeCapacity(Floor floor) {
+        final Optional<Person> optionalPerson = peekPersonFromQueue(floor);
         final AtomicInteger personWeight;
         personWeight = optionalPerson.map(person -> new AtomicInteger(person.getWeight()))
                 .orElseGet(() -> new AtomicInteger(0));
         return elevator.getFreeCapacity() >= personWeight.get();
     }
 
-    private Optional<Person> peekPersonFromQueue(int direction, Floor floor){
-        if (direction == Elevator.DIRECTION_UP){
-            return Optional.ofNullable(floor.getPersonQueueUp().peek());
-        }
-        if (direction == Elevator.DIRECTION_DOWN){
-            return Optional.ofNullable(floor.getPersonQueueDown().peek());
-        }
-        return Optional.empty();
+    private Optional<Person> peekPersonFromQueue(Floor floor) {
+        return elevator.getDirection() == Elevator.DIRECTION_DOWN ?
+                Optional.ofNullable(floor.getPersonQueueDown().peek()) :
+                Optional.ofNullable(floor.getPersonQueueUp().peek());
     }
+
     @Override
-    public void releasePassengers(Elevator elevator) {
+    public void releasePassengers() {
         final List<Person> personList = elevator.getPersonList();
         for (Person person : personList) {
             if (person.getDestinationFloor() == elevator.getCurrentFloor()) {
                 elevator.removePerson(person);
-                log.info("Person "+person+" exit from elevator");
+                log.info("Person " + person + " exit from elevator");
             }
+        }
+        elevator.switchOffButton(elevator.getCurrentFloor());
+    }
 
+    @SneakyThrows
+    @Override
+    public void controlDirection(House house) {
+        if (elevator.getCurrentFloor() == house.getFloorsNumber()){
+            elevator.setDirectionDown();
+        }
+        if (elevator.getCurrentFloor() == 1){
+            elevator.setDirectionUp();
         }
     }
-
-    @Override
-    public void move(Elevator elevator) {
-
-    }
-
 
 }
