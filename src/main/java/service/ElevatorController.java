@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -22,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ElevatorController {
 
     private final Elevator elevator;
-    private final BlockingQueue<Task> tasks = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Task> tasks = new PriorityBlockingQueue<>();
     @SneakyThrows
     public void addTask(Task task){
         this.tasks.put(task);
@@ -34,6 +35,7 @@ public class ElevatorController {
         if (tasks.isEmpty()){
             elevator.setIdle(true);
         }
+
     }
     public int getCurrentFloorNumber(){
         return this.elevator.getCurrentFloor();
