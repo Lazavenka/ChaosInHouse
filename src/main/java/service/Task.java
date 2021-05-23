@@ -1,11 +1,12 @@
 package service;
 
+import domain.Direction;
 import domain.Elevator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
-import java.util.Comparator;
+
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -15,7 +16,7 @@ public class Task implements Runnable, Comparable<Task> {
     private final int destinationFloor;
     private final Elevator elevator;
     @Getter
-    private final int direction;
+    private final Direction direction;
 
     @Override
     public void run() {
@@ -69,4 +70,5 @@ public class Task implements Runnable, Comparable<Task> {
     public int compareTo(Task o) {
         return this.destinationFloor-o.getDestinationFloor();
     }
+
 }

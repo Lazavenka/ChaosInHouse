@@ -16,14 +16,11 @@ import java.util.stream.IntStream;
 @Getter
 public class Elevator {
 
-    public static final int DIRECTION_UP = 1;
-    public static final int DIRECTION_DOWN = -1;
-
     private final int elevatorMoveLag = 4_200; //mills
     private final int doorsOpenCloseLag = 3_000; //mills
 
     private final int id;
-    private int direction;
+    private Direction direction;
     @Setter
     private boolean idle;
     @Setter
@@ -36,7 +33,7 @@ public class Elevator {
     private final Map<Integer, Boolean> buttonsFloors;
 
     public Elevator(int numberOfFloors, int liftingCapacity, int id) {
-        this.direction = DIRECTION_UP;
+        this.direction = Direction.UP;
         this.currentFloor = new AtomicInteger(1);
         this.buttonsFloors = new HashMap<>(numberOfFloors);
         IntStream.range(0, numberOfFloors).forEach(i -> this.buttonsFloors.put(i+1, false)); //номера этажей начиная с 1
@@ -46,15 +43,16 @@ public class Elevator {
     }
 
     public void setDirectionUp() {
-        this.direction = DIRECTION_UP;
+        this.direction = Direction.UP;
     }
 
     public void setDirectionDown() {
-        this.direction = DIRECTION_DOWN;
+        this.direction = Direction.DOWN;
     }
 
     public void move() {
-        this.currentFloor.addAndGet(direction);
+        int delta = this.direction.equals(Direction.UP) ? 1 : -1;
+        this.currentFloor.addAndGet(delta);
     }
 
     public int getCurrentFloor() {
@@ -94,7 +92,6 @@ public class Elevator {
 
     @Override
     public String toString() {
-        String direction = this.direction == DIRECTION_UP ? "UP" : "DOWN";
         return "Elevator " + id +
                 ", direction " + direction +
                 ", currentFloor " + currentFloor +

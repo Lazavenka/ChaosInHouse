@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import service.PeopleGenerator;
 import service.PeopleGeneratorImpl;
 import service.Task;
+import service.TaskComparator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ public class Tester {
         System.out.println("---------2nd generation----------");
         house.printHouseInfo();
         */
-        BlockingQueue<Task> priorityTasks = new PriorityBlockingQueue<>();
+        PriorityBlockingQueue<Task> priorityTasks = new PriorityBlockingQueue<>(5, new TaskComparator().reversed());
         Elevator elevator = new Elevator(29, 800, 1);
         Task[] generated = IntStream.range(2, 6).mapToObj(i -> new Task(i*2, elevator, elevator.getDirection())).toArray((Task[]::new));
         priorityTasks.addAll(Arrays.asList(generated.clone()));

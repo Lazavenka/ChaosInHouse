@@ -1,18 +1,16 @@
 package service;
 
-import domain.Elevator;
-import domain.Floor;
-import domain.House;
-import domain.Person;
+import domain.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,16 +21,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ElevatorController {
 
     private final Elevator elevator;
-    private final BlockingQueue<Task> tasks = new PriorityBlockingQueue<>();
+    private final BlockingQueue<Task> tasksMoveUp = new PriorityBlockingQueue<>(0, new TaskComparator());
+    private final BlockingQueue<Task> tasksMoveDown = new PriorityBlockingQueue<>(0, new TaskComparator().reversed());
     @SneakyThrows
     public void addTask(Task task){
-        this.tasks.put(task);
+        if (task.getDirection().equals(Direction.UP)) {
+            this.tasksMoveUp.put(task);
+        } else {
+            this.tasksMoveDown.put(task);
+        }
         elevator.setIdle(false);
     }
     @SneakyThrows
     public void completeTask(){
-        this.tasks.take().run();
-        if (tasks.isEmpty()){
+        this.tasksMoveUp.take().run();
+        if (tasksMoveUp.isEmpty()){
             elevator.setIdle(true);
         }
 
@@ -52,12 +55,12 @@ public class ElevatorController {
     }
     // returns the queue corresponding to the direction of elevator
     private BlockingQueue<Person> getPersonQueue(Floor floor) {
-        return elevator.getDirection() == Elevator.DIRECTION_DOWN ? floor.getPersonQueueDown() : floor.getPersonQueueUp();
+        return elevator.getDirection() == Direction.DOWN ? floor.getPersonQueueDown() : floor.getPersonQueueUp();
     }
 
     private boolean checkDirectionAndButton(Floor floor) {
-        return (elevator.getDirection() == Elevator.DIRECTION_UP && floor.isButtonUp()) ||
-                (elevator.getDirection() == Elevator.DIRECTION_DOWN && floor.isButtonDown());
+        return (elevator.getDirection() == Direction.UP && floor.isButtonUp()) ||
+                (elevator.getDirection() == Direction.UP && floor.isButtonDown());
     }
 
     private boolean checkFreeCapacity(Floor floor) {
@@ -69,7 +72,7 @@ public class ElevatorController {
     }
 
     private Optional<Person> peekPersonFromQueue(Floor floor) {
-        return elevator.getDirection() == Elevator.DIRECTION_DOWN ?
+        return elevator.getDirection() == Direction.DOWN ?
                 Optional.ofNullable(floor.getPersonQueueDown().peek()) :
                 Optional.ofNullable(floor.getPersonQueueUp().peek());
     }

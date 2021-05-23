@@ -1,5 +1,6 @@
 package service;
 
+import domain.Direction;
 import domain.Elevator;
 import domain.Floor;
 import domain.House;
@@ -25,7 +26,7 @@ public class MasterElevatorController {
     }
     private List<Task> getMoveTasksFromQueuesUp(Elevator elevator){
         final int[] floorsButtonUpOn = house.getFloors()
-                .stream().filter(elevator.getDirection() == 1 ? Floor::isButtonUp : Floor::isButtonDown)
+                .stream().filter(elevator.getDirection().equals(Direction.UP) ? Floor::isButtonUp : Floor::isButtonDown)
                 .mapToInt(Floor::getFloorNumber)
                 .toArray();
         return getTasksByFloorsArray(elevator, floorsButtonUpOn);
