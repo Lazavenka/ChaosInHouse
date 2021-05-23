@@ -5,6 +5,7 @@ import domain.Floor;
 import domain.House;
 import domain.Person;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @AllArgsConstructor
+@Getter
 public class ElevatorController {
 
     private final Elevator elevator;
@@ -24,10 +26,14 @@ public class ElevatorController {
     @SneakyThrows
     public void addTask(Task task){
         this.tasks.put(task);
+        elevator.setIdle(false);
     }
     @SneakyThrows
     public void completeTask(){
         this.tasks.take().run();
+        if (tasks.isEmpty()){
+            elevator.setIdle(true);
+        }
     }
     public int getCurrentFloorNumber(){
         return this.elevator.getCurrentFloor();

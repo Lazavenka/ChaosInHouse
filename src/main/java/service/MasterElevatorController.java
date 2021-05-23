@@ -14,16 +14,18 @@ public class MasterElevatorController {
     private final House house;
 
     public void generateTask(){
+        List<ElevatorController> elevatorControllers = house.getElevatorControllers();
+        elevatorControllers.stream().map(ElevatorController::getElevator)
+                .mapToInt(this::findMinDistanceToQueue).toArray();
     }
 
-    private Task generateNextTaskByFloorButtons(Elevator elevator){
+    private int findMinDistanceToQueue(Elevator elevator){
         final int currentFloor = elevator.getCurrentFloor();
         final int[] floorsButtonOn = house.getFloors()
                 .stream().filter(floor -> !floor.isButtonUp() || !floor.isButtonDown())
                 .mapToInt(Floor::getFloorNumber)
                 .toArray();
-        final int minDistanceFloor = findMinDistance(floorsButtonOn, currentFloor);
-        return new Task(currentFloor, minDistanceFloor, elevator);
+        return  findMinDistance(floorsButtonOn, currentFloor);
     }
 
     private List<Task> generateTasksByElevatorButtons(Elevator elevator){

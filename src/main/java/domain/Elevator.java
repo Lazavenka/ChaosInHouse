@@ -2,6 +2,7 @@ package domain;
 
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
@@ -23,6 +24,10 @@ public class Elevator {
 
     private final int id;
     private int direction;
+    @Setter
+    private boolean idle;
+    @Setter
+    private boolean isOpenDoors;
     private final AtomicInteger currentFloor;
 
     private final int liftingCapacity;
@@ -36,6 +41,7 @@ public class Elevator {
         this.buttonsFloors = new HashMap<>(numberOfFloors);
         IntStream.range(0, numberOfFloors).forEach(i -> this.buttonsFloors.put(i+1, false)); //номера этажей начиная с 1
         this.liftingCapacity = liftingCapacity;
+        this.idle = true;
         this.id = id;
     }
 
