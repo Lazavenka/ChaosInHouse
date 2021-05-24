@@ -16,8 +16,8 @@ import java.util.stream.IntStream;
 @Getter
 public class Elevator {
 
-    private final int elevatorMoveLag = 4_200; //mills
-    private final int doorsOpenCloseLag = 3_000; //mills
+    private final int elevatorMoveLag = 1_200; //mills
+    private final int doorsOpenCloseLag = 1_000; //mills
 
     private final int id;
     private Direction direction;

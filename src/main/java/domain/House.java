@@ -64,7 +64,7 @@ public class House {
     }
 
     public Elevator getElevatorByNumber(int elevatorNumber) {
-        Preconditions.checkArgument(elevatorNumber > 0 && elevatorNumber < getElevatorsNumber(),
+        Preconditions.checkArgument(elevatorNumber > 0 && elevatorNumber < getElevatorsNumber()+1,
                 "Check args! Incorrect elevator number");
         return elevators.stream().filter(elevator -> elevator.getId() == elevatorNumber)
                 .findFirst()

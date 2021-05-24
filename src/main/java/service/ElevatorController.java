@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -21,8 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ElevatorController {
 
     private final Elevator elevator;
-    private final BlockingQueue<Task> tasksMoveUp = new PriorityBlockingQueue<>(0, new TaskComparator());
-    private final BlockingQueue<Task> tasksMoveDown = new PriorityBlockingQueue<>(0, new TaskComparator().reversed());
+    private final BlockingQueue<Task> tasksMoveUp = new PriorityBlockingQueue<>(10, new TaskComparator());
+    private final BlockingQueue<Task> tasksMoveDown = new PriorityBlockingQueue<>(10, new TaskComparator().reversed());
     @SneakyThrows
     public void addTask(Task task){
         if (task.getDirection().equals(Direction.UP)) {
@@ -34,7 +32,7 @@ public class ElevatorController {
     }
     @SneakyThrows
     public void completeTask(){
-        this.tasksMoveUp.take().run();
+        this.tasksMoveUp.take().run(); //сделать выбор очереди по направлению движения
         if (tasksMoveUp.isEmpty()){
             elevator.setIdle(true);
         }
@@ -93,7 +91,7 @@ public class ElevatorController {
         if (elevator.getCurrentFloor() == house.getFloorsNumber()){
             elevator.setDirectionDown();
         }
-        if (elevator.getCurrentFloor() == 0){
+        if (elevator.getCurrentFloor() == 1){
             elevator.setDirectionUp();
         }
     }

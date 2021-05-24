@@ -5,11 +5,12 @@ import domain.Elevator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
+@Slf4j
 @AllArgsConstructor
 public class Task implements Runnable, Comparable<Task> {
     @Getter
@@ -20,15 +21,22 @@ public class Task implements Runnable, Comparable<Task> {
 
     @Override
     public void run() {
-        closeDoors(); //close doors
-        move();
-        openDoors(); //open open doors
+        if(elevator.getCurrentFloor() != destinationFloor) {
+            log.info("Elevator " + elevator + " closing doors.");
+            closeDoors();
+            log.info("Elevator " + elevator + " start moving.");
+            move();
+            log.info("Elevator " + elevator + " arrived.");
+        }
+        openDoors();
+        log.info("Elevator " + elevator + " opens doors.");
     }
     @SneakyThrows
     private void move(){
         while(elevator.getCurrentFloor()!=destinationFloor){
             TimeUnit.MILLISECONDS.sleep(elevator.getElevatorMoveLag());
             elevator.move();
+            log.info("Elevator " + elevator + " on " + elevator.getCurrentFloor() + " floor.");
         }
     }
 
