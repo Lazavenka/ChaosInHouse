@@ -2,7 +2,6 @@ package domain;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -22,25 +21,6 @@ public class Floor {
         this.buttonDown = false;
     }
 
-    public void distributeByQueues(Person person) {
-        final int destinationFloor = person.getDestinationFloor();
-        if (this.floorNumber < destinationFloor){
-            addPersonToQueueUp(person);
-        }else {
-            addPersonToQueueDown(person);
-        }
-    }
-    @SneakyThrows
-    private void addPersonToQueueUp(Person person){
-        this.personQueueUp.put(person);
-        this.buttonUp = true;
-    }
-    @SneakyThrows
-    private void addPersonToQueueDown(Person person){
-        this.personQueueDown.put(person);
-        this.buttonDown = true;
-    }
-
     public void checkQueues(){
         if (personQueueUp.isEmpty()){
             setButtonUp(false);
@@ -56,6 +36,6 @@ public class Floor {
                 ", buttonUp " + buttonUp +
                 ", buttonDown " + buttonDown +
                 ", peopleUp " + personQueueUp.size() +
-                ", peopleUp " + personQueueDown.size();
+                ", peopleDown " + personQueueDown.size();
     }
 }

@@ -10,18 +10,18 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @AllArgsConstructor
-public class Task implements Runnable, Comparable<Task> {
-    @Getter
+@Getter
+public class MoveTask implements Runnable, Comparable<MoveTask> {
     private final int destinationFloor;
     private final Elevator elevator;
-    @Getter
     private final Direction direction;
 
     @Override
     public void run() {
-        if(elevator.getCurrentFloor() != destinationFloor) {
+        if (elevator.getCurrentFloor() != destinationFloor) {
             log.info("Elevator " + elevator + " closing doors.");
             closeDoors();
             log.info("Elevator " + elevator + " start moving.");
@@ -31,9 +31,10 @@ public class Task implements Runnable, Comparable<Task> {
         openDoors();
         log.info("Elevator " + elevator + " opens doors.");
     }
+
     @SneakyThrows
-    private void move(){
-        while(elevator.getCurrentFloor()!=destinationFloor){
+    private void move() {
+        while (elevator.getCurrentFloor() != destinationFloor) {
             TimeUnit.MILLISECONDS.sleep(elevator.getElevatorMoveLag());
             elevator.move();
             log.info("Elevator " + elevator + " on " + elevator.getCurrentFloor() + " floor.");
@@ -41,24 +42,28 @@ public class Task implements Runnable, Comparable<Task> {
     }
 
     @SneakyThrows
-    private void closeDoors(){
-        TimeUnit.MILLISECONDS.sleep(elevator.getDoorsOpenCloseLag());
-        elevator.setOpenDoors(false);
-    }
-    @SneakyThrows
-    private void openDoors(){
-        TimeUnit.MILLISECONDS.sleep(elevator.getDoorsOpenCloseLag());
-        elevator.setOpenDoors(true);
+    private void closeDoors() {
+        if (elevator.isOpenDoors()) {
+            TimeUnit.MILLISECONDS.sleep(elevator.getDoorsOpenCloseLag());
+            elevator.setOpenDoors(false);
+        }
     }
 
+    @SneakyThrows
+    private void openDoors() {
+        if(!elevator.isOpenDoors()) {
+            TimeUnit.MILLISECONDS.sleep(elevator.getDoorsOpenCloseLag());
+            elevator.setOpenDoors(true);
+        }
+    }
 
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return destinationFloor == task.destinationFloor;
+        MoveTask moveTask = (MoveTask) o;
+        return destinationFloor == moveTask.destinationFloor;
     }
 
     @Override
@@ -75,8 +80,8 @@ public class Task implements Runnable, Comparable<Task> {
     }
 
     @Override
-    public int compareTo(Task o) {
-        return this.destinationFloor-o.getDestinationFloor();
+    public int compareTo(MoveTask o) {
+        return this.destinationFloor - o.getDestinationFloor();
     }
 
 }

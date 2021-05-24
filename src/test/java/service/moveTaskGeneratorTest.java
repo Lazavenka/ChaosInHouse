@@ -11,26 +11,27 @@ import testData.ElevatorSamples;
 
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 @Slf4j
-class MasterElevatorControllerTest {
+class moveTaskGeneratorTest {
 
-    private MasterElevatorController masterElevatorController;
+    private TaskGenerator taskGenerator;
     @Mock
     private House house;
+    @Mock
+    private PeopleGenerator peopleGenerator;
     @BeforeEach
     void before(){
         MockitoAnnotations.initMocks(this);
-        masterElevatorController = new MasterElevatorController(house);
+        taskGenerator = new TaskGenerator(house, peopleGenerator);
     }
 
     @Test
     void generateTasksByElevatorButtons() {
         Elevator elevator = ElevatorSamples.getTestElevator();
-        List<Task> tasks = masterElevatorController.generateTasksByElevatorButtons(elevator);
-        log.info(tasks.toString());
+        List<MoveTask> MoveTasks = taskGenerator.generateTasksByElevatorButtons(elevator);
+        log.info(MoveTasks.toString());
     }
 
 

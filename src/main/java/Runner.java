@@ -1,4 +1,5 @@
 import domain.Elevator;
+import domain.Floor;
 import domain.House;
 import domain.Person;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +17,8 @@ public class Runner {
         log.info("Person "+person);
         log.info("isButtonUp() before distribution - "+house.getFloorByNumber(testFloorNumber).isButtonUp());
         log.info("isButtonDown() before distribution - "+house.getFloorByNumber(testFloorNumber).isButtonDown());
-
-        house.getFloorByNumber(testFloorNumber).distributeByQueues(person);
+        Floor floor = house.getFloorByNumber(testFloorNumber);
+        person.getInLine(floor);
 
         log.info("isButtonUp() after distribution - "+house.getFloorByNumber(testFloorNumber).isButtonUp());
         log.info("isButtonDown() after distribution - "+house.getFloorByNumber(testFloorNumber).isButtonDown());
