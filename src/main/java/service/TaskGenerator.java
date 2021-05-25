@@ -6,35 +6,56 @@ import domain.Floor;
 import domain.House;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
+@Slf4j
 @AllArgsConstructor
 public class TaskGenerator implements Runnable{
     private final House house;
     private final PeopleGenerator peopleGenerator;
     private static final long GENERATION_DELAY = 10_000; //mills
 
-    public void generateTasks(){
-        //List<ElevatorController> elevatorControllers = house.getElevatorControllers();
-        //elevatorControllers.stream().map(ElevatorController::getElevator)
-        //        .mapToInt(this::findMinDistanceToQueue).toArray(); //дописать
+    public void distributeTasks(){
+        List<Elevator> elevators = this.house.getElevators();
+
+        final Optional<Elevator> optElevatorIdle = elevators.stream().filter(Elevator::isIdle).findFirst();
+        final Optional<Elevator> optElevatorUp = elevators.stream().filter(elevator -> elevator.getDirection().equals(Direction.UP)).findFirst();
+        final Optional<Elevator> optElevatorDown = elevators.stream().filter(elevator -> elevator.getDirection().equals(Direction.DOWN)).findFirst();
+
+        if(optElevatorIdle.isPresent()){
+            final Elevator elevatorIdle = optElevatorIdle.get();
+            final List<MoveTask> moveTasks = getMoveTasksFromQueuesByElevatorDirection(elevatorIdle); //anytask
+            moveTasks.forEach(task -> elevatorIdle.getElevatorController().addTask(task, elevatorIdle));
+        }else {
+            if (optElevatorUp.isPresent()){
+                final Elevator elevatorUp = optElevatorUp.get();
+                final List<MoveTask> moveTasks = getMoveTasksFromQueuesUp(elevatorUp);
+                moveTasks.forEach(moveTask -> elevatorUp.getElevatorController().addTask(moveTask, elevatorUp));
+            }
+            if (optElevatorDown.isPresent()){
+                final Elevator elevatorDown= optElevatorDown.get();
+                final List<MoveTask> moveTasks = getMoveTasksFromQueuesDown(elevatorDown);
+                moveTasks.forEach(moveTask -> elevatorDown.getElevatorController().addTask(moveTask, elevatorDown));
+            }
+        }
+
     }
-    //Едет на максимально высокий этаж из списка этажей если лифт находится внизу и надо забрать людей
 
-    private MoveTask getSpecifiedTask(int destinationFloor, Elevator elevator){
-
-        return new MoveTask(house.getFloorByNumber(destinationFloor), elevator, elevator.getDirection(), true); //дописать
+    private List<MoveTask> getMoveTasksFromQueuesByElevatorDirection(Elevator elevator){
+        final int[] floorsButtonUpOn = house.getFloors()
+                .stream().filter(elevator.getDirection().equals(Direction.UP) ? Floor::isButtonUp : Floor::isButtonDown)
+                .mapToInt(Floor::getFloorNumber)
+                .toArray();
+        return getTasksByFloorsArray(elevator, floorsButtonUpOn);
     }
-
-
 
     private List<MoveTask> getMoveTasksFromQueuesUp(Elevator elevator){
         final int[] floorsButtonUpOn = house.getFloors()
-                .stream().filter(elevator.getDirection().equals(Direction.UP) ? Floor::isButtonUp : Floor::isButtonDown)
+                .stream().filter(Floor::isButtonUp)
                 .mapToInt(Floor::getFloorNumber)
                 .toArray();
         return getTasksByFloorsArray(elevator, floorsButtonUpOn);
@@ -52,22 +73,7 @@ public class TaskGenerator implements Runnable{
                 .toArray();
         return getTasksByFloorsArray(elevator, floorsButtonUpOn);
     }
-    private int findMinDistanceToQueue(Elevator elevator){
-        final int currentFloor = elevator.getCurrentFloor();
-        final int[] floorsButtonOn = house.getFloors()
-                .stream().filter(floor -> floor.isButtonUp() || floor.isButtonDown())
-                .mapToInt(Floor::getFloorNumber)
-                .toArray();
-        return  findMinTargetFloor(floorsButtonOn, currentFloor);
-    }
 
-    public List<MoveTask> generateTasksByElevatorButtons(Elevator elevator){
-        final int[] floorsButtonOn = elevator.getButtonsFloors()
-                .entrySet().stream().filter(Map.Entry::getValue)
-                .mapToInt(Map.Entry::getKey)
-                .toArray();
-        return getTasksByFloorsArray(elevator, floorsButtonOn);
-    }
     private List<MoveTask> getTasksByFloorsArray(Elevator elevator, int...floors){
         final List<MoveTask> MoveTasks = new ArrayList<>(floors.length);
         for (int destinationFloor: floors) {
@@ -76,33 +82,13 @@ public class TaskGenerator implements Runnable{
         return MoveTasks;
     }
 
-    private int findMinTargetFloor(int[] floors, int current){
-        int min = floors[0];
-        for (int i: floors) {
-            if ((Math.abs(i - current)) < (Math.abs(i - min))) {
-                min = i;
-            }
-        }
-        return min;
-
-    }
-    private int findMaxTargetFloor(int[] floors, int current){
-        int max = floors[0];
-        for (int i: floors) {
-            if ((Math.abs(i - current)) > (Math.abs(i - max))) {
-                max = i;
-            }
-        }
-        return max;
-    }
-
     @SneakyThrows
     @Override
     public void run() {
-
-        while (true) {
+        while(true) {
             this.peopleGenerator.run();
-            generateTasks();
+            distributeTasks();
+            house.printHouseInfo();
             TimeUnit.MILLISECONDS.sleep(GENERATION_DELAY);
         }
     }

@@ -18,9 +18,9 @@ public class Person {
     private final int spawnFloor;
     private final int destinationFloor;
     private final Direction direction;
-    public Person(int spawnFloorNumber, int maxFloor){
+    public Person(int spawnFloorNumber, int maxFloor, String id){
         this.weight = ThreadLocalRandom.current().nextInt(20, 150);
-        this.name = "RandomName";
+        this.name = id;
         this.spawnFloor = spawnFloorNumber;
         this.destinationFloor = generateDestinationFloor(maxFloor, spawnFloorNumber);
         this.spawnTime = LocalTime.now();

@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
 @Getter
 public class Elevator implements Runnable{
 
-    private final int elevatorMoveLag = 1_200; //mills
+    private final int elevatorMoveLag = 2_200; //mills
     private final int doorsOpenCloseLag = 1_000; //mills
 
     private final int id;
@@ -101,19 +101,21 @@ public class Elevator implements Runnable{
     }
     @Override
     public void run() {
-        Floor destinationFloor;
-        while (true){ //Поправить на правильное условие процесса
-            destinationFloor = this.elevatorController.completeMoveTask(this);
-            this.elevatorController.dropPassengers(this);
-            this.elevatorController.addPersonsToElevator(destinationFloor,this);
+        while(true) {
+//
+                Floor destinationFloor = this.elevatorController.completeMoveTask(this);
+                this.elevatorController.dropPassengers(this);
+                this.elevatorController.addPersonsToElevator(destinationFloor, this);
+ //           }
         }
     }
     @Override
     public String toString() {
         return "Elevator " + id +
                 ", direction " + direction +
-                ", currentFloor " + currentFloor +
-                ", liftingCapacity " + liftingCapacity;
+                ", floor " + currentFloor +
+                ", doorsOpen " +isOpenDoors +
+                ", ilde " +idle;
     }
 
 }

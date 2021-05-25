@@ -12,14 +12,15 @@ import java.util.concurrent.ThreadLocalRandom;
 public class PeopleGeneratorImpl implements PeopleGenerator {
     private final int personGenerationRate; //person per period
     private final House house;
-
+    private static int personID;
     @Override
     public void generatePeople(House house) {
         final ThreadLocalRandom random = ThreadLocalRandom.current();
         final int maxFloor = house.getFloorsNumber();
         for (int i = 0; i < personGenerationRate; i++) {
+            personID++;
             final int floorToGeneratePerson = random.nextInt(1, maxFloor+1);
-            final Person person = new Person(floorToGeneratePerson, maxFloor);
+            final Person person = new Person(floorToGeneratePerson, maxFloor, ""+personID);
             final Floor floor = house.getFloorByNumber(floorToGeneratePerson);
             person.getInLine(floor);
         }

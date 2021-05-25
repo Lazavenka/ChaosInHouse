@@ -25,14 +25,14 @@ public class MoveTask implements Runnable, Comparable<MoveTask> {
     @Override
     public void run() {
         if (elevator.getCurrentFloor() != destinationFloor.getFloorNumber()) {
-            log.info("Elevator " + elevator + " closing doors.");
+            log.info(elevator + " closing doors.");
             closeDoors();
-            log.info("Elevator " + elevator + " start moving.");
+            log.info(elevator + " start moving.");
             move();
-            log.info("Elevator " + elevator + " arrived.");
+            log.info(elevator + " arrived.");
         }
         openDoors();
-        log.info("Elevator " + elevator + " opens doors.");
+        log.info(elevator + " opens doors.");
     }
 
     @SneakyThrows
@@ -40,7 +40,7 @@ public class MoveTask implements Runnable, Comparable<MoveTask> {
         while (elevator.getCurrentFloor() != destinationFloor.getFloorNumber()) {
             TimeUnit.MILLISECONDS.sleep(elevator.getElevatorMoveLag());
             elevator.move();
-            log.info("Elevator " + elevator + " on " + elevator.getCurrentFloor() + " floor.");
+            log.info(elevator + " on " + elevator.getCurrentFloor() + " floor.");
         }
     }
 
@@ -77,7 +77,7 @@ public class MoveTask implements Runnable, Comparable<MoveTask> {
     @Override
     public String toString() {
         return "Task{" +
-                "destinationFloor=" + destinationFloor +
+                "destinationFloor=" + destinationFloor.getFloorNumber() +
                 ", direction=" + direction +
                 '}';
     }

@@ -7,7 +7,6 @@ import service.ElevatorController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
 import java.util.stream.IntStream;
 
 @Getter
@@ -29,7 +28,7 @@ public class House {
         this.elevators = new ArrayList<>();
         IntStream.range(0, numberOfFloors).forEach(i -> floors.add(new Floor(i + 1)));
         IntStream.range(0, numberOfElevators)
-                .forEach(i -> elevators.add(new Elevator(numberOfFloors, elevatorLiftingCapacity, i + 1, new ElevatorController())));
+                .forEach(i -> elevators.add(new Elevator(numberOfFloors, elevatorLiftingCapacity, i + 1, new ElevatorController(this))));
 
     }
 

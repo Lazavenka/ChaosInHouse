@@ -28,10 +28,8 @@ class moveTaskGeneratorTest {
     }
 
     @Test
-    void generateTasksByElevatorButtons() {
-        Elevator elevator = ElevatorSamples.getTestElevator();
-        List<MoveTask> MoveTasks = taskGenerator.generateTasksByElevatorButtons(elevator);
-        log.info(MoveTasks.toString());
+    void generateTasks() {
+
     }
 
 
