@@ -72,6 +72,7 @@ public class Elevator implements Runnable{
     public void addPerson(Person person) {
         final long elapsedSeconds = Duration.between(LocalTime.now(), person.getSpawnTime()).getSeconds();
         person.setEnterElevatorTime(LocalTime.now());
+        personList.add(person);
         this.buttonsFloors.put(person.getDestinationFloor(), true);
         log.info("Person " + person + " wait elevator in queue " + elapsedSeconds + " sec.");
     }
@@ -115,7 +116,8 @@ public class Elevator implements Runnable{
                 ", direction " + direction +
                 ", floor " + currentFloor +
                 ", doorsOpen " +isOpenDoors +
-                ", ilde " +idle;
+                ", ilde " +idle + " persons " +personList;
+
     }
 
 }
