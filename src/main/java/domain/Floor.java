@@ -3,14 +3,15 @@ package domain;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.LinkedList;
+import java.util.Queue;
+
 @Getter
 @Setter
 public class Floor {
     private final int floorNumber;
-    private final BlockingQueue<Person> personQueueUp = new LinkedBlockingQueue<>();
-    private final BlockingQueue<Person> personQueueDown = new LinkedBlockingQueue<>();
+    private final Queue<Person> personQueueUp = new LinkedList<>();
+    private final Queue<Person> personQueueDown = new LinkedList<>();
 
     private boolean buttonUp;
     private boolean buttonDown;

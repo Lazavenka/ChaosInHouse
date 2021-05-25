@@ -20,6 +20,11 @@ public class PeopleGeneratorAndCounterDecorator implements PeopleGenerator {
     }
 
     public long getCounter() {
-        return counter.get();
+        return this.counter.get();
+    }
+
+    @Override
+    public void run() {
+        this.peopleGenerator.run();
     }
 }

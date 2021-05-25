@@ -3,6 +3,6 @@ package service;
 import domain.House;
 
 
-public interface PeopleGenerator {
+public interface PeopleGenerator extends Runnable {
     void generatePeople(House house);
 }

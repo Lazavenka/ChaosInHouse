@@ -52,10 +52,10 @@ public class Person {
     @SneakyThrows
     public void getInLine(Floor floor){
         if (this.direction.equals(Direction.UP)){
-            floor.getPersonQueueUp().put(this);
+            floor.getPersonQueueUp().offer(this);
             floor.setButtonUp(true);
         } else {
-            floor.getPersonQueueDown().put(this);
+            floor.getPersonQueueDown().offer(this);
             floor.setButtonDown(true);
         }
     }

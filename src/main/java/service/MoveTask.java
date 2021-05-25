@@ -2,8 +2,10 @@ package service;
 
 import domain.Direction;
 import domain.Elevator;
+import domain.Floor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,13 +17,14 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 @Getter
 public class MoveTask implements Runnable, Comparable<MoveTask> {
-    private final int destinationFloor;
+    private final Floor destinationFloor;
     private final Elevator elevator;
     private final Direction direction;
-
+    @Setter
+    private boolean needReverse;
     @Override
     public void run() {
-        if (elevator.getCurrentFloor() != destinationFloor) {
+        if (elevator.getCurrentFloor() != destinationFloor.getFloorNumber()) {
             log.info("Elevator " + elevator + " closing doors.");
             closeDoors();
             log.info("Elevator " + elevator + " start moving.");
@@ -34,7 +37,7 @@ public class MoveTask implements Runnable, Comparable<MoveTask> {
 
     @SneakyThrows
     private void move() {
-        while (elevator.getCurrentFloor() != destinationFloor) {
+        while (elevator.getCurrentFloor() != destinationFloor.getFloorNumber()) {
             TimeUnit.MILLISECONDS.sleep(elevator.getElevatorMoveLag());
             elevator.move();
             log.info("Elevator " + elevator + " on " + elevator.getCurrentFloor() + " floor.");
@@ -81,7 +84,7 @@ public class MoveTask implements Runnable, Comparable<MoveTask> {
 
     @Override
     public int compareTo(MoveTask o) {
-        return this.destinationFloor - o.getDestinationFloor();
+        return this.destinationFloor.getFloorNumber() - o.getDestinationFloor().getFloorNumber();
     }
 
 }

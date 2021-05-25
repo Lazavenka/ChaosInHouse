@@ -4,12 +4,14 @@ import domain.Floor;
 import domain.House;
 import domain.Person;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 @AllArgsConstructor
 public class PeopleGeneratorImpl implements PeopleGenerator {
     private final int personGenerationRate; //person per period
+    private final House house;
 
     @Override
     public void generatePeople(House house) {
@@ -20,11 +22,16 @@ public class PeopleGeneratorImpl implements PeopleGenerator {
             final Person person = new Person(floorToGeneratePerson, maxFloor);
             final Floor floor = house.getFloorByNumber(floorToGeneratePerson);
             person.getInLine(floor);
-            //house.getFloorByNumber(floorToGeneratePerson).distributeByQueues(person);
         }
     }
 
     public int getPersonGenerationRate() {
         return personGenerationRate;
+    }
+
+    @SneakyThrows
+    @Override
+    public void run() {
+        generatePeople(this.house);
     }
 }

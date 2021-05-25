@@ -6,9 +6,7 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -17,8 +15,8 @@ import java.util.concurrent.PriorityBlockingQueue;
 @Getter
 public class ElevatorController{
 
-    private final BlockingQueue<MoveTask> moveTasksUp = new PriorityBlockingQueue<>(10, new TaskComparator());
-    private final BlockingQueue<MoveTask> moveTasksDown = new PriorityBlockingQueue<>(10, new TaskComparator().reversed());
+    private final BlockingQueue<MoveTask> moveTasksUp = new PriorityBlockingQueue<>(50, new TaskComparator());
+    private final BlockingQueue<MoveTask> moveTasksDown = new PriorityBlockingQueue<>(50, new TaskComparator().reversed());
 
     @SneakyThrows
     private void addTask(MoveTask moveTask) {
@@ -32,39 +30,40 @@ public class ElevatorController{
     }
 
     @SneakyThrows
-    public void completeMoveTask(Elevator elevator) {
+    public Floor completeMoveTask(Elevator elevator) {
         final Direction elevatorDirection = elevator.getDirection();
-        this.moveTasksUp.take().run(); //сделать выбор очереди по направлению движения
-        if (moveTasksDown.isEmpty()) {
+        final MoveTask moveTask = getTaskQueue(elevatorDirection).take();
+        final Floor destinationFloor = moveTask.getDestinationFloor();
+        reverseDirection(elevator, moveTask);
+        final boolean forcedReverse = moveTask.isNeedReverse();
+        moveTask.run();
+
+        reverseDirection(elevator, forcedReverse);
+        if (moveTasksDown.isEmpty() && moveTasksUp.isEmpty()) {
             elevator.setIdle(true);
         }
+        return destinationFloor;
+    }
+
+    @SneakyThrows
+    private BlockingQueue<MoveTask> getTaskQueue(Direction direction){
+        return direction.equals(Direction.UP) ? moveTasksUp : moveTasksDown;
     }
     @SneakyThrows
     public void addPersonsToElevator(Floor floor, Elevator elevator) {
         boolean success;
-        do {
-            final Person person = getPersonQueue(floor, elevator).take();
-            success = person.enterElevator(elevator);
-            floor.checkQueues();
-        } while (success);
-        generateTasksByElevatorButtons(elevator).forEach(this::addTask);
-    }
-    private List<MoveTask> generateTasksByElevatorButtons(Elevator elevator){
-        final int[] floorsButtonOn = elevator.getButtonsFloors()
-                .entrySet().stream().filter(Map.Entry::getValue)
-                .mapToInt(Map.Entry::getKey)
-                .toArray();
-        return getTasksByFloorsArray(elevator, floorsButtonOn);
-    }
-    private List<MoveTask> getTasksByFloorsArray(Elevator elevator, int...floors){
-        final List<MoveTask> moveTasks = new ArrayList<>(floors.length);
-        for (int destinationFloor: floors) {
-            moveTasks.add(new MoveTask(destinationFloor, elevator, elevator.getDirection()));
+        Queue<Person> personQueue = getPersonQueue(floor, elevator);
+        if (!personQueue.isEmpty()) {
+            do {
+                final Person person = getPersonQueue(floor, elevator).poll();
+                success = Objects.requireNonNull(person).enterElevator(elevator);
+                floor.checkQueues();
+            } while (success && !personQueue.isEmpty());
         }
-        return moveTasks;
     }
+
     // returns the queue corresponding to the direction of elevator
-    private BlockingQueue<Person> getPersonQueue(Floor floor, Elevator elevator) {
+    private Queue<Person> getPersonQueue(Floor floor, Elevator elevator) {
         return elevator.getDirection() == Direction.UP ? floor.getPersonQueueUp() : floor.getPersonQueueDown();
     }
 
@@ -80,13 +79,31 @@ public class ElevatorController{
         elevator.switchOffButton(elevator.getCurrentFloor());
     }
 
-    @SneakyThrows
-    public void controlDirection(Elevator elevator) {
+    private void reverseDirection(Elevator elevator, boolean forced) {
         if (elevator.getCurrentFloor() == elevator.getButtonsFloors().size()) {
             elevator.setDirectionDown();
         }
         if (elevator.getCurrentFloor() == 1) {
             elevator.setDirectionUp();
+        }
+        if (forced){
+            elevator.reverseDirection();
+        }
+    }
+    //костыль
+    private void reverseDirection(Elevator elevator, MoveTask task){
+        final Direction elevatorDirection = elevator.getDirection();
+        final Direction taskDirection = task.getDirection();
+        final boolean matchDirection = elevatorDirection.equals(taskDirection);
+        final boolean floorMismatchWithSameDirection;
+        if (elevatorDirection.equals(Direction.UP)){
+            floorMismatchWithSameDirection = elevator.getCurrentFloor() > task.getDestinationFloor().getFloorNumber();
+        }else {
+            floorMismatchWithSameDirection = elevator.getCurrentFloor() < task.getDestinationFloor().getFloorNumber();
+        }
+        if (matchDirection && floorMismatchWithSameDirection){
+            elevator.reverseDirection();
+            task.setNeedReverse(true);
         }
     }
 

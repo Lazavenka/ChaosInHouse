@@ -2,22 +2,30 @@ package service;
 
 import domain.House;
 import domain.Person;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class PeopleGeneratorImplTest {
-    final int generationRate = 10; //person per iteration
-    final PeopleGenerator peopleGenerator = new PeopleGeneratorImpl(generationRate);
+    private final static int GENERATION_RATE = 10; //person per iteration
+
+    private House house;
+    private PeopleGenerator peopleGenerator;
+    @BeforeEach
+    void before(){
+        house = House.ofFloorsAndElevators(10, 5);
+        peopleGenerator = new PeopleGeneratorImpl(GENERATION_RATE, house);
+    }
     @Test
     void generatePeople_checkPeopleNumber() {
         final int iterationsNumber = 100;
-        final int personNumber = generationRate * iterationsNumber;
+        final int personNumber = GENERATION_RATE * iterationsNumber;
 
         final House house = getHouseWithGeneratedPeople(iterationsNumber);
 
@@ -35,16 +43,15 @@ class PeopleGeneratorImplTest {
 
     }
     private House getHouseWithGeneratedPeople(int iterationsNumber){
-        final House house = House.ofFloorsAndElevators(10, 5);
         for (int i = 0; i < iterationsNumber; i++) {
             peopleGenerator.generatePeople(house);
         }
         return house;
     }
-    private BlockingQueue<Person> getFirstFloorQueueDown(House house){
+    private Queue<Person> getFirstFloorQueueDown(House house){
         return house.getFloorByNumber(1).getPersonQueueDown();
     }
-    private BlockingQueue<Person> getLastFloorQueueUp(House house){
+    private Queue<Person> getLastFloorQueueUp(House house){
         return house.getFloorByNumber(house.getFloorsNumber()).getPersonQueueUp();
     }
 }

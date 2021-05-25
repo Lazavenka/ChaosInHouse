@@ -22,7 +22,7 @@ public class Tester {
 
         House house = House.ofFloorsAndElevators(5, 2);
         house.printHouseInfo();
-        PeopleGenerator peopleGenerator = new PeopleGeneratorImpl(8);
+        PeopleGenerator peopleGenerator = new PeopleGeneratorImpl(8, house);
         for (int i = 0; i < 100; i++) {
             peopleGenerator.generatePeople(house);
         }

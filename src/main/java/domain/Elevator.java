@@ -53,7 +53,13 @@ public class Elevator implements Runnable{
     public void setDirectionDown() {
         this.direction = Direction.DOWN;
     }
-
+    public void reverseDirection(){
+        if (this.direction.equals(Direction.UP)) {
+            setDirectionDown();
+        } else {
+            setDirectionUp();
+        }
+    }
     public void move() {
         int delta = this.direction.equals(Direction.UP) ? 1 : -1;
         this.currentFloor.addAndGet(delta);
@@ -95,11 +101,11 @@ public class Elevator implements Runnable{
     }
     @Override
     public void run() {
-        while (!this.idle){ //Поправить на правильную паузу процесса
-            this.elevatorController.completeMoveTask(this);
-            this.elevatorController.addPersonsToElevator(floor,this); //????
+        Floor destinationFloor;
+        while (true){ //Поправить на правильное условие процесса
+            destinationFloor = this.elevatorController.completeMoveTask(this);
             this.elevatorController.dropPassengers(this);
-            this.elevatorController.controlDirection(this);
+            this.elevatorController.addPersonsToElevator(destinationFloor,this);
         }
     }
     @Override

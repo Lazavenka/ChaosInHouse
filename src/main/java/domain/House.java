@@ -6,6 +6,7 @@ import service.ElevatorController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.IntStream;
 
@@ -75,8 +76,8 @@ public class House {
     }
 
     public int getPersonCount() {
-        final int personQueuesUp = this.floors.stream().map(Floor::getPersonQueueUp).map(BlockingQueue::size).reduce(0, Integer::sum);
-        final int personQueuesDown = this.floors.stream().map(Floor::getPersonQueueDown).map(BlockingQueue::size).reduce(0, Integer::sum);
+        final int personQueuesUp = this.floors.stream().map(Floor::getPersonQueueUp).map(Queue::size).reduce(0, Integer::sum);
+        final int personQueuesDown = this.floors.stream().map(Floor::getPersonQueueDown).map(Queue::size).reduce(0, Integer::sum);
         return personQueuesUp + personQueuesDown;
     }
 

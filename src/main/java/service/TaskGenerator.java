@@ -24,10 +24,14 @@ public class TaskGenerator implements Runnable{
         //        .mapToInt(this::findMinDistanceToQueue).toArray(); //дописать
     }
     //Едет на максимально высокий этаж из списка этажей если лифт находится внизу и надо забрать людей
+
     private MoveTask getSpecifiedTask(int destinationFloor, Elevator elevator){
 
-        return new MoveTask(destinationFloor, elevator, elevator.getDirection()); //дописать
+        return new MoveTask(house.getFloorByNumber(destinationFloor), elevator, elevator.getDirection(), true); //дописать
     }
+
+
+
     private List<MoveTask> getMoveTasksFromQueuesUp(Elevator elevator){
         final int[] floorsButtonUpOn = house.getFloors()
                 .stream().filter(elevator.getDirection().equals(Direction.UP) ? Floor::isButtonUp : Floor::isButtonDown)
@@ -67,7 +71,7 @@ public class TaskGenerator implements Runnable{
     private List<MoveTask> getTasksByFloorsArray(Elevator elevator, int...floors){
         final List<MoveTask> MoveTasks = new ArrayList<>(floors.length);
         for (int destinationFloor: floors) {
-            MoveTasks.add(new MoveTask(destinationFloor, elevator, elevator.getDirection()));
+            MoveTasks.add(new MoveTask(house.getFloorByNumber(destinationFloor), elevator, elevator.getDirection(), false));
        }
         return MoveTasks;
     }
@@ -95,8 +99,9 @@ public class TaskGenerator implements Runnable{
     @SneakyThrows
     @Override
     public void run() {
+
         while (true) {
-            this.peopleGenerator.generatePeople(this.house);
+            this.peopleGenerator.run();
             generateTasks();
             TimeUnit.MILLISECONDS.sleep(GENERATION_DELAY);
         }
