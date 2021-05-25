@@ -10,12 +10,13 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 @Slf4j
 @Getter
-public class Elevator implements Runnable{
+public class Elevator implements Runnable {
 
     private final int elevatorMoveLag = 2_200; //mills
     private final int doorsOpenCloseLag = 1_000; //mills
@@ -30,7 +31,7 @@ public class Elevator implements Runnable{
 
     private final int liftingCapacity;
 
-    private final List<Person> personList = new ArrayList<>();
+    private final CopyOnWriteArrayList<Person> personList = new CopyOnWriteArrayList<>();
     private final Map<Integer, Boolean> buttonsFloors;
 
     private final ElevatorController elevatorController;
@@ -53,13 +54,15 @@ public class Elevator implements Runnable{
     public void setDirectionDown() {
         this.direction = Direction.DOWN;
     }
-    public void reverseDirection(){
+
+    public void reverseDirection() {
         if (this.direction.equals(Direction.UP)) {
             setDirectionDown();
         } else {
             setDirectionUp();
         }
     }
+
     public void move() {
         int delta = this.direction.equals(Direction.UP) ? 1 : -1;
         this.currentFloor.addAndGet(delta);
@@ -70,7 +73,7 @@ public class Elevator implements Runnable{
     }
 
     public void addPerson(Person person) {
-        final long elapsedSeconds = Duration.between(LocalTime.now(), person.getSpawnTime()).getSeconds();
+        final long elapsedSeconds = Duration.between(person.getSpawnTime(), LocalTime.now()).getSeconds();
         person.setEnterElevatorTime(LocalTime.now());
         personList.add(person);
         this.buttonsFloors.put(person.getDestinationFloor(), true);
@@ -78,7 +81,7 @@ public class Elevator implements Runnable{
     }
 
     public void removePerson(Person person) {
-        final long elapsedSeconds = Duration.between(LocalTime.now(), person.getEnterElevatorTime()).getSeconds();
+        final long elapsedSeconds = Duration.between(person.getEnterElevatorTime(), LocalTime.now()).getSeconds();
         this.personList.remove(person);
         this.buttonsFloors.put(person.getDestinationFloor(), false);
         log.info("Person " + person + " move in elevator " + elapsedSeconds + " sec.");
@@ -100,23 +103,23 @@ public class Elevator implements Runnable{
     public String getButtons() {
         return buttonsFloors.toString();
     }
+
     @Override
     public void run() {
-        while(true) {
-//
-                Floor destinationFloor = this.elevatorController.completeMoveTask(this);
-                this.elevatorController.dropPassengers(this);
-                this.elevatorController.addPersonsToElevator(destinationFloor, this);
- //           }
+        while (true) {
+            Floor destinationFloor = this.elevatorController.completeMoveTask(this);
+            this.elevatorController.dropPassengers(this);
+            this.elevatorController.addPersonsToElevator(destinationFloor, this);
         }
     }
+
     @Override
     public String toString() {
         return "Elevator " + id +
                 ", direction " + direction +
                 ", floor " + currentFloor +
-                ", doorsOpen " +isOpenDoors +
-                ", ilde " +idle + " persons " +personList;
+                ", doorsOpen " + isOpenDoors +
+                ", ilde " + idle + ", persons " + personList.size();
 
     }
 

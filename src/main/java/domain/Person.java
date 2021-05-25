@@ -62,6 +62,6 @@ public class Person {
 
     @Override
     public String toString() {
-        return  name + ", weight = " + weight + ", destinationFloor = " + destinationFloor;
+        return  name + ", weight = " + weight +", spawn = " + spawnFloor +", dest = " + destinationFloor;
     }
 }

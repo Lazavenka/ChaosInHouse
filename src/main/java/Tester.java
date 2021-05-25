@@ -19,53 +19,20 @@ import java.util.stream.IntStream;
 public class Tester {
     @SneakyThrows
     public static void main(String[] args) {
+        int currentFloor = 10;
+        int[] floorsUp = new int[]{2, 5, 7, 8};
+        int[] floorsDown = new int[]{3, 5, 6};
 
-        House house = House.ofFloorsAndElevators(5, 2);
-        house.printHouseInfo();
-        PeopleGenerator peopleGenerator = new PeopleGeneratorImpl(8, house);
-        for (int i = 0; i < 100; i++) {
-            peopleGenerator.generatePeople(house);
+        int ans = findMinDistance(currentFloor, floorsUp);
+        log.info(""+ans);
+    }
+    private static int findMinDistance(int currentFloor, int... floorNumbers){
+        int min = floorNumbers[0];
+        for(int n : floorNumbers)
+        {
+            if ((Math.abs(n - currentFloor)) < (Math.abs(currentFloor - min)))
+                min = n;
         }
-//        peopleGenerator.generatePeople(house);
-//        System.out.println("---------1st generation----------");
-        house.printHouseInfo();
-//        peopleGenerator.generatePeople(house);
-//        System.out.println("---------2nd generation----------");
-//        house.printHouseInfo();
-        /*
-        PriorityBlockingQueue<Task> priorityTasks = new PriorityBlockingQueue<>(5, new TaskComparator());
-        Elevator elevator = new Elevator(29, 800, 1, new ElevatorController());
-        Task[] generated = IntStream.range(3, 6).mapToObj(i -> new Task(i*2, elevator, elevator.getDirection())).toArray((Task[]::new));
-        priorityTasks.add(new Task(1, elevator,elevator.getDirection()));
-        priorityTasks.addAll(Arrays.asList(generated.clone()));
-
-        System.out.println(priorityTasks);
-
-        final Task task = new Task(7, elevator, elevator.getDirection());
-        System.out.println("---------------");
-        priorityTasks.add(task);
-
-
-
-        System.out.println(priorityTasks);
-        System.out.println(elevator);
-        System.out.println("tasks.take");
-        priorityTasks.take().run();
-        System.out.println(priorityTasks);
-        System.out.println(elevator);
-        System.out.println("second tasks.take");
-        priorityTasks.take().run();
-        System.out.println(priorityTasks);
-        System.out.println("3rd tasks.take");
-        priorityTasks.take().run();
-        System.out.println(priorityTasks);
-        System.out.println("4th tasks.take");
-        priorityTasks.take().run();
-        System.out.println(priorityTasks);
-        System.out.println("5th tasks.take");
-        priorityTasks.take().run();
-        System.out.println(priorityTasks);
-        System.out.println(elevator);
-        */
+        return min;
     }
 }

@@ -17,7 +17,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class ElevatorController {
 
     private final BlockingQueue<MoveTask> moveTasksUp = new PriorityBlockingQueue<>(50, new TaskComparator());
-    private final BlockingQueue<MoveTask> moveTasksDown = new PriorityBlockingQueue<>(50, new TaskComparator().reversed());
+    private final BlockingQueue<MoveTask> moveTasksDown = new PriorityBlockingQueue<>(50, new TaskComparator());
     private final House house;
 
     @SneakyThrows
@@ -25,7 +25,7 @@ public class ElevatorController {
         final BlockingQueue<MoveTask> taskQueueByDirection = getTaskQueue(moveTask.getDirection());
         if (!taskQueueByDirection.contains(moveTask)) {
             taskQueueByDirection.put(moveTask);
-//            log.debug("Add task " + moveTask);
+            //log.debug("Add task " + moveTask);
             elevator.setIdle(false);
         }
 
@@ -35,6 +35,7 @@ public class ElevatorController {
     public Floor completeMoveTask(Elevator elevator) {
         final Direction elevatorDirection = elevator.getDirection();
         final MoveTask moveTask = getTaskQueue(elevatorDirection).take();
+        //log.debug("Task " + moveTask);
         final Floor destinationFloor = moveTask.getDestinationFloor();
         reverseDirection(elevator, moveTask);
         final boolean forcedReverse = moveTask.isNeedReverse();
@@ -85,8 +86,10 @@ public class ElevatorController {
     public void dropPassengers(Elevator elevator) {
         final List<Person> personList = elevator.getPersonList();
         for (Person person : personList) {
-            person.exitElevator(elevator);
-            log.info("Person " + person + " exit from elevator");
+            if (person.getDestinationFloor() == elevator.getCurrentFloor()) {
+                person.exitElevator(elevator);
+                log.info("Person " + person + " exit from elevator");
+            }
         }
         elevator.switchOffButton(elevator.getCurrentFloor());
     }
