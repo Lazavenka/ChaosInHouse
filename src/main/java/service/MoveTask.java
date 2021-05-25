@@ -22,6 +22,7 @@ public class MoveTask implements Runnable, Comparable<MoveTask> {
     private final Direction direction;
     @Setter
     private boolean needReverse;
+
     @Override
     public void run() {
         if (elevator.getCurrentFloor() != destinationFloor.getFloorNumber()) {
@@ -54,7 +55,7 @@ public class MoveTask implements Runnable, Comparable<MoveTask> {
 
     @SneakyThrows
     private void openDoors() {
-        if(!elevator.isOpenDoors()) {
+        if (!elevator.isOpenDoors()) {
             TimeUnit.MILLISECONDS.sleep(elevator.getDoorsOpenCloseLag());
             elevator.setOpenDoors(true);
         }

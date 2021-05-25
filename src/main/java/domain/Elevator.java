@@ -100,10 +100,6 @@ public class Elevator implements Runnable {
         return liftingCapacity - totalWeight;
     }
 
-    public String getButtons() {
-        return buttonsFloors.toString();
-    }
-
     @Override
     public void run() {
         while (true) {

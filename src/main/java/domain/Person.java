@@ -3,7 +3,6 @@ package domain;
 import lombok.*;
 
 import java.time.LocalTime;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Generated
@@ -18,7 +17,8 @@ public class Person {
     private final int spawnFloor;
     private final int destinationFloor;
     private final Direction direction;
-    public Person(int spawnFloorNumber, int maxFloor, String id){
+
+    public Person(int spawnFloorNumber, int maxFloor, String id) {
         this.weight = ThreadLocalRandom.current().nextInt(20, 150);
         this.name = id;
         this.spawnFloor = spawnFloorNumber;
@@ -27,31 +27,32 @@ public class Person {
         this.direction = this.spawnFloor < this.destinationFloor ? Direction.UP : Direction.DOWN;
     }
 
-    private int generateDestinationFloor(int maxFloor, int except){
-        int result = ThreadLocalRandom.current().nextInt(1,maxFloor+1);
-        while (result == except){
-            result = ThreadLocalRandom.current().nextInt(1,maxFloor+1);
+    private int generateDestinationFloor(int maxFloor, int except) {
+        int result = ThreadLocalRandom.current().nextInt(1, maxFloor + 1);
+        while (result == except) {
+            result = ThreadLocalRandom.current().nextInt(1, maxFloor + 1);
         }
         return result;
     }
-    public boolean enterElevator(Elevator elevator){
-        //заменить на класс проверяльщик
+
+    public boolean enterElevator(Elevator elevator) {
         if ((this.spawnFloor == elevator.getCurrentFloor() || this.direction.equals(elevator.getDirection()))
-                && (elevator.getFreeCapacity() >=this.weight) && elevator.isOpenDoors()){
+                && (elevator.getFreeCapacity() >= this.weight) && elevator.isOpenDoors()) {
             elevator.addPerson(this);
             return true;
         } else {
             return false;
         }
     }
-    public void exitElevator(Elevator elevator){
+
+    public void exitElevator(Elevator elevator) {
         if (this.destinationFloor == elevator.getCurrentFloor() && elevator.isOpenDoors())
-        elevator.removePerson(this);
+            elevator.removePerson(this);
     }
 
     @SneakyThrows
-    public void getInLine(Floor floor){
-        if (this.direction.equals(Direction.UP)){
+    public void getInLine(Floor floor) {
+        if (this.direction.equals(Direction.UP)) {
             floor.getPersonQueueUp().offer(this);
             floor.setButtonUp(true);
         } else {
@@ -62,6 +63,6 @@ public class Person {
 
     @Override
     public String toString() {
-        return  name + ", weight = " + weight +", spawn = " + spawnFloor +", dest = " + destinationFloor;
+        return name + ", weight = " + weight + ", spawn = " + spawnFloor + ", dest = " + destinationFloor;
     }
 }

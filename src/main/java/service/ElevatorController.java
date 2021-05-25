@@ -25,7 +25,6 @@ public class ElevatorController {
         final BlockingQueue<MoveTask> taskQueueByDirection = getTaskQueue(moveTask.getDirection());
         if (!taskQueueByDirection.contains(moveTask)) {
             taskQueueByDirection.put(moveTask);
-            //log.debug("Add task " + moveTask);
             elevator.setIdle(false);
         }
 
@@ -35,7 +34,6 @@ public class ElevatorController {
     public Floor completeMoveTask(Elevator elevator) {
         final Direction elevatorDirection = elevator.getDirection();
         final MoveTask moveTask = getTaskQueue(elevatorDirection).take();
-        //log.debug("Task " + moveTask);
         final Floor destinationFloor = moveTask.getDestinationFloor();
         reverseDirection(elevator, moveTask);
         final boolean forcedReverse = moveTask.isNeedReverse();
@@ -63,20 +61,24 @@ public class ElevatorController {
         }
         generateTasksByElevatorButtons(elevator).forEach(task -> addTask(task, elevator));
     }
-    private List<MoveTask> generateTasksByElevatorButtons(Elevator elevator){
+
+    private List<MoveTask> generateTasksByElevatorButtons(Elevator elevator) {
         final int[] floorsButtonOn = elevator.getButtonsFloors()
                 .entrySet().stream().filter(Map.Entry::getValue)
                 .mapToInt(Map.Entry::getKey)
                 .toArray();
-        return getTasksByFloorsArray(elevator, floorsButtonOn);
+        return getTasksByFloorsArray(elevator.getDirection(), elevator, floorsButtonOn);
     }
-    private List<MoveTask> getTasksByFloorsArray(Elevator elevator, int...floors){
+
+    private List<MoveTask> getTasksByFloorsArray(Direction direction, Elevator elevator, int... floors) {
         final List<MoveTask> MoveTasks = new ArrayList<>(floors.length);
-        for (int destinationFloor: floors) {
-            MoveTasks.add(new MoveTask(house.getFloorByNumber(destinationFloor), elevator, elevator.getDirection(), false));
+        for (int destinationFloor : floors) {
+            elevator.getButtonsFloors().put(destinationFloor, false);
+            MoveTasks.add(new MoveTask(house.getFloorByNumber(destinationFloor), elevator, direction, false));
         }
         return MoveTasks;
     }
+
     // returns the queue corresponding to the direction of elevator
     private Queue<Person> getPersonQueue(Floor floor, Elevator elevator) {
         return elevator.getDirection() == Direction.UP ? floor.getPersonQueueUp() : floor.getPersonQueueDown();

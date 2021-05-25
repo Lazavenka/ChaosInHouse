@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 public class Runner {
     public static void main(String[] args) {
         log.info("Hello");
-        final House house = House.ofCustomizeAll(99, 7, 12000);
-        final int generationRate = 25;
+        final House house = House.ofCustomizeAll(4, 2, 1200);
+        final int generationRate = 10;
         PeopleGenerator peopleGenerator = new PeopleGeneratorImpl(generationRate, house);
         TaskGenerator taskGenerator = new TaskGenerator(house, peopleGenerator);
         List<Elevator> elevators = house.getElevators();
